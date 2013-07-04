@@ -100,7 +100,7 @@ class Cart(db.Model, CRUDMixin):
 
 
 @multilingual
-class Category(db.Model, TreeNode, SlugMixin):
+class Category(SlugMixin, db.Model, TreeNode):
     """ Product category mixin
     """
     __metaclass__ = NodeMetaClass

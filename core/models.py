@@ -103,17 +103,28 @@ class SlugMixin(CRUDMixin):
     def _slug(cls):
         return db.Column(db.String(128), nullable=False, unique=True)
 
-    @hybrid_property
-    def slug(self):
-        return self._slug
-
-    @slug.setter
-    def slug(self, name):
-        self._slug = slugify(name)
-
     def save(self, commit=True):
-        self.slug = self.name
-        return super(SlugMixin, self).save(commit)
+        return self.save_without_new_slug(commit=True)
+
+    @classmethod
+    def create(cls, commit=True, **kwargs):
+        slug = kwargs.pop('slug', None)
+        instance = cls(**kwargs)
+        if slug:
+            instance.slug = slug
+        else:
+            instance.slug = slugify(kwargs.get('name'))
+        return instance.save(commit)
+
+    def update(self, commit=True, **kwargs):
+        slug = kwargs.pop('slug', None)
+        if slug:
+            self.slug = slug
+        else:
+            self.slug = slugify(self.name)
+
+        self._slug = self.slug
+        return self._setattrs(**kwargs).save(commit)
 
     @classmethod
     def get_by_slug(cls, slug):
