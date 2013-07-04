@@ -56,6 +56,13 @@ class CategoryResource(ModelResource):
         return super(CategoryResource, self) \
             .gen_list_response(page_size=10000, **kwargs)
 
+    def put(self, id):
+        try:
+            return super(CategoryResource, self).put(id)
+        except Exception as e:
+            status, response = http.BAD_REQUEST, {'slug': e.__str__()}
+            return jsonify_status_code(response, status)
+
 
 @api_resource(bp, 'countries', {'id': int})
 class CountriesResource(ModelResource):

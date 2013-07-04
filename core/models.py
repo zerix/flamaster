@@ -106,6 +106,10 @@ class SlugMixin(CRUDMixin):
     def save(self, commit=True):
         return self.save_without_new_slug(commit=True)
 
+    @hybrid_property
+    def slug(self):
+        return self._slug
+
     @classmethod
     def create(cls, commit=True, **kwargs):
         slug = kwargs.pop('slug', None)
@@ -119,6 +123,8 @@ class SlugMixin(CRUDMixin):
     def update(self, commit=True, **kwargs):
         slug = kwargs.pop('slug', None)
         if slug:
+            if self.get_by_slug(slug):
+                raise Exception('Slug is not unique')
             self.slug = slug
         else:
             self.slug = slugify(self.name)
